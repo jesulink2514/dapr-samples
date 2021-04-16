@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-deloyment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: state
+  template:
+    metadata:
+      labels:
+        app: state
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "orders"
+        dapr.io/app-protocol: "http"
+        dapr.io/app-port: "5000"
+    spec:
+      containers:
+        - name: orders
+          image: somostechies.azurecr.io/store:0.1.0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders
+spec:
+  selector:
+    app: state
+  ports:
+    - port: 80
+      targetPort: 5000

@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trigger-deployment
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trigger
+  template:
+    metadata:
+      labels:
+        app: trigger
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "trigger"
+    spec:
+      containers:
+        - name: trigger
+          image: somostechies.azurecr.io/trigger:0.1.0
+          ports:
+            - containerPort: 80
