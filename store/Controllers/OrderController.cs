@@ -13,25 +13,27 @@ namespace store.Controllers
     [Route("[controller]")]
     public class OrderController : ControllerBase
     {
-        private readonly DaprClient daprClient;
+        private readonly DaprClient _daprClient;
         private readonly ILogger<OrderController> _logger;
-        public const string StoreName = "";
+        public const string StoreName = "statestore";
         public OrderController(DaprClient daprClient, ILogger<OrderController> logger)
         {
-            this.daprClient = daprClient;
+            this._daprClient = daprClient;
             _logger = logger;
         }
 
         [HttpGet]
-        public async Task<Order> Get()
+        public async Task<ActionResult<Order>> Get()
         {
-            return null;
+            var order = await _daprClient.GetStateAsync<Order>(StoreName, "order");
+            if (order == null) return NoContent();
+            return order;
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateNewOrder(Order newOrder)
         {
-
+            await _daprClient.SaveStateAsync(StoreName, "order", newOrder);
             return CreatedAtAction(nameof(Get), newOrder);
         }
     }
