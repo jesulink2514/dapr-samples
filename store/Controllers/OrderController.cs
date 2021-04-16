@@ -34,6 +34,7 @@ namespace store.Controllers
         public async Task<IActionResult> CreateNewOrder(Order newOrder)
         {
             await _daprClient.SaveStateAsync(StoreName, "order", newOrder);
+            _logger.LogInformation($"Persisted new order with Id:{newOrder.Id}");
             return CreatedAtAction(nameof(Get), newOrder);
         }
     }
