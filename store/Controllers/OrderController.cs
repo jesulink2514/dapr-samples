@@ -15,7 +15,7 @@ namespace store.Controllers
     {
         private readonly DaprClient _daprClient;
         private readonly ILogger<OrderController> _logger;
-        public const string StoreName = "statestore";
+        public const string StoreName = "orders-state";
         public OrderController(DaprClient daprClient, ILogger<OrderController> logger)
         {
             this._daprClient = daprClient;
