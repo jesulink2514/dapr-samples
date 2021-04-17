@@ -44,14 +44,13 @@ namespace inventory
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "inventory v1"));
             }
 
-            app.UseHttpsRedirection();
-
             app.UseRouting();
-
+            app.UseCloudEvents();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapSubscribeHandler();
                 endpoints.MapControllers();
             });
         }

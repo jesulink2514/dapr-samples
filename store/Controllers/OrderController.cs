@@ -35,6 +35,7 @@ namespace store.Controllers
         {
             await _daprClient.SaveStateAsync(StoreName, "order", newOrder);
             _logger.LogInformation($"Persisted new order with Id:{newOrder.Id}");
+            await _daprClient.PublishEventAsync("pubsub", "OrderSubmitted", new { Id = newOrder.Id, Amount = newOrder.Amount });
             return CreatedAtAction(nameof(Get), newOrder);
         }
     }
