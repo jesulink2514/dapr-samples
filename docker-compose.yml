@@ -1,0 +1,85 @@
+version: '3.4'
+
+services:
+
+####################
+# store + sidecar  #
+####################
+  store:
+    image: store
+    build:
+      context: .
+      dockerfile: store/Dockerfile
+    depends_on:
+      - redis
+      - placement 
+    ports:
+      - 5000
+    networks: 
+      - techies
+
+  store-dapr:
+    image: "daprio/daprd:1.1.0"
+    command: ["./daprd",
+     "-app-id", "orders",
+     "-app-port", "5000",
+     "-placement-host-address", "placement:50006",
+     "-components-path", "/components"]
+    volumes:
+        - "./compose-components/:/components"
+    depends_on:
+      - store
+    network_mode: "service:store"
+  
+########################
+# Inventory + sidecar  #
+########################
+  inventory:
+    image: inventory
+    build:
+      context: .
+      dockerfile: publish-subscribe/Dockerfile
+    depends_on:
+      - redis 
+    ports:
+      - 5000
+    networks: 
+      - techies
+
+  inventory-dapr:
+    image: "daprio/daprd:1.1.0"
+    command: ["./daprd",
+     "-app-id", "inventory",
+     "-app-port", "6000",
+     "-placement-host-address", "placement:50006",
+     "-components-path", "/components"]
+    volumes:
+        - "./compose-components/:/components"
+    depends_on:
+      - inventory
+    network_mode: "service:inventory"  
+
+
+  ############################
+  # Dapr placement service
+  ############################
+  placement:
+    image: "daprio/dapr:1.1.0"
+    command: ["./placement", "-port", "50006"]
+    ports:
+      - "50006:50006"
+    networks:
+      - techies
+
+  ##########################
+  #     Infrastructure     #
+  ##########################
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6380:6379"
+    networks: 
+      - techies
+networks: 
+  techies:
